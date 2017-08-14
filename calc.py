@@ -1,19 +1,16 @@
-INTEGER, PLUS, EOF = 'INTEGER', 'PLUS', 'EOF'
+INTEGER, PLUS, MINUS, EOF = 'INTEGER', 'PLUS', 'MINUS', 'EOF'
 
 
 class Token(object):
     def __init__(self, type, value):
-        # token type: INTEGER, PLUS, or EOF
         self.type = type
-        # token value: 0, 1, 2. 3, 4, 5, 6, 7, 8, 9, '+', or None
         self.value = value
 
     def __str__(self):
-        """String representation of the class instance.
-
-        Examples:
+        """
             Token(INTEGER, 3)
             Token(PLUS '+')
+            Token(MINUS '-')
         """
         return 'Token({type}, {value})'.format(
             type=self.type,
@@ -40,14 +37,9 @@ class Interpreter(object):
         
         text = self.text
 
-        # is self.pos index past the end of the self.text ?
-        # if so, then return EOF token because there is no more
-        # input left to convert into tokens
         if self.pos > len(text) - 1:
             return Token(EOF, None)
 
-        # get a character at the position self.pos and decide
-        # what token to create based on the single character
         current_char = text[self.pos]
 
         # if the character is a digit then convert it to integer
@@ -61,13 +53,14 @@ class Interpreter(object):
             self.pos += 1
             return token
 
+        if current_char == '-':
+            token = Token(MINUS, current_char)
+            self.pos += 1
+            return token
+
         self.error()
 
     def eat(self, token_type):
-        # compare the current token type with the passed token
-        # type and if they match then "eat" the current token
-        # and assign the next token to the self.current_token,
-        # otherwise raise an exception.
         if self.current_token.type == token_type:
             self.current_token = self.get_next_token()
         else:
@@ -76,21 +69,25 @@ class Interpreter(object):
     def expr(self):
         self.current_token = self.get_next_token()
 
-        # single-digit integer 
         left = self.current_token
         self.eat(INTEGER)
 
-        # for '+' token
         op = self.current_token
-        self.eat(PLUS)
 
-        # single-digit integer
+        # print(op)
+        if op.value == '+':
+            self.eat(PLUS)
+        if op.value == '-':
+            self.eat(MINUS)
+
         right = self.current_token
         self.eat(INTEGER)
-        # after the above call the self.current_token is set to
-        # EOF token
 
-        result = left.value + right.value
+        if op.value == '+':
+            result = left.value + right.value
+        if op.value == '-':
+            result = left.value - right.value
+
         return result
 
 
