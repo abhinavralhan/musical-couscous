@@ -1,4 +1,4 @@
-INTEGER, PLUS, MINUS, EOF = 'INTEGER', 'PLUS', 'MINUS', 'EOF'
+INTEGER, PLUS, MINUS, MULTIPLY, DIVIDE, POW, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'POW', 'EOF'
 
 
 class Token(object):
@@ -30,8 +30,32 @@ class Interpreter(object):
         # current token instance
         self.current_token = None
 
+        self.current_char = self.text[self.pos]
+
+
     def error(self):
         raise Exception('Error parsing input')
+
+    def advance(self):
+        """Advance the 'pos' pointer and set the 'current_char' variable."""
+        self.pos += 1
+        if self.pos > len(self.text) - 1:
+            self.current_char = None  
+        else:
+            self.current_char = self.text[self.pos]
+
+    def skip_whitespace(self):
+        while self.current_char is not None and self.current_char.isspace():
+            self.advance()
+
+    def integer(self):
+        """Return a (multidigit) integer consumed from the input."""
+        result = ''
+        while self.current_char is not None and self.current_char.isdigit():
+            result += self.current_char
+            self.advance()
+        return int(result)
+
 
     def get_next_token(self):
         
@@ -40,25 +64,40 @@ class Interpreter(object):
         if self.pos > len(text) - 1:
             return Token(EOF, None)
 
-        current_char = text[self.pos]
-
+        
         # if the character is a digit then convert it to integer
-        if current_char.isdigit():
-            token = Token(INTEGER, int(current_char))
-            self.pos += 1
-            return token
+        while self.current_char is not None:
 
-        if current_char == '+':
-            token = Token(PLUS, current_char)
-            self.pos += 1
-            return token
+            if self.current_char.isspace():
+                self.skip_whitespace()
+                continue
 
-        if current_char == '-':
-            token = Token(MINUS, current_char)
-            self.pos += 1
-            return token
+            if self.current_char.isdigit():
+                return Token(INTEGER, self.integer())
 
-        self.error()
+            if self.current_char == '+':
+                self.advance()
+                return Token(PLUS, '+')
+
+            if self.current_char == '-':
+                self.advance()
+                return Token(MINUS, '-')
+
+            if self.current_char == '*':
+                self.advance()
+                return Token(MULTIPLY, '*')
+
+            if self.current_char == '/':
+                self.advance()
+                return Token(DIVIDE, '/')
+
+            # if self.current_char == '**':
+            #     self.advance()
+            #     return Token(POW, '**')
+
+            self.error()
+
+        return Token(EOF, None)
 
     def eat(self, token_type):
         if self.current_token.type == token_type:
@@ -79,6 +118,10 @@ class Interpreter(object):
             self.eat(PLUS)
         if op.value == '-':
             self.eat(MINUS)
+        if op.value == '*':
+            self.eat(MULTIPLY)
+        if op.value == '/':
+            self.eat(DIVIDE)
 
         right = self.current_token
         self.eat(INTEGER)
@@ -87,6 +130,10 @@ class Interpreter(object):
             result = left.value + right.value
         if op.value == '-':
             result = left.value - right.value
+        if op.value == '*':
+            result = left.value * right.value
+        if op.value == '/':
+            result = left.value / right.value
 
         return result
 
