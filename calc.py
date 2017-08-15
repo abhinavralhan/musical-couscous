@@ -7,11 +7,7 @@ class Token(object):
         self.value = value
 
     def __str__(self):
-        """
-            Token(INTEGER, 3)
-            Token(PLUS '+')
-            Token(MINUS '-')
-        """
+
         return 'Token({type}, {value})'.format(
             type=self.type,
             value=repr(self.value)
@@ -23,11 +19,9 @@ class Token(object):
 
 class Interpreter(object):
     def __init__(self, text):
-        # client string input, e.g. "3+5"
+
         self.text = text
-        # self.pos is an index into self.text
         self.pos = 0
-        # current token instance
         self.current_token = None
 
         self.current_char = self.text[self.pos]
@@ -37,7 +31,7 @@ class Interpreter(object):
         raise Exception('Error parsing input')
 
     def advance(self):
-        """Advance the 'pos' pointer and set the 'current_char' variable."""
+
         self.pos += 1
         if self.pos > len(self.text) - 1:
             self.current_char = None  
@@ -45,11 +39,12 @@ class Interpreter(object):
             self.current_char = self.text[self.pos]
 
     def skip_whitespace(self):
+
         while self.current_char is not None and self.current_char.isspace():
             self.advance()
 
     def integer(self):
-        """Return a (multidigit) integer consumed from the input."""
+
         result = ''
         while self.current_char is not None and self.current_char.isdigit():
             result += self.current_char
@@ -65,7 +60,6 @@ class Interpreter(object):
             return Token(EOF, None)
 
         
-        # if the character is a digit then convert it to integer
         while self.current_char is not None:
 
             if self.current_char.isspace():
