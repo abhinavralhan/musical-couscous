@@ -100,20 +100,20 @@ class Interpreter(object):
         result = self.term()
 
         while self.current_token.type in (PLUS, MINUS, MULTIPLY, DIVIDE):
-	        op = self.current_token
+	        token = self.current_token
     	    # self.eat(INTEGER)
         	# op = self.current_token
 	        # print(op)
-	        if op.value == '+':
+	        if token.value == '+':
 	            self.eat(PLUS)
 	            result = result + self.term()
-	        if op.value == '-':
+	        if token.value == '-':
 	            self.eat(MINUS)
 	            result = result - self.term()
-	        if op.value == '*':
+	        if token.value == '*':
 	            self.eat(MULTIPLY)
 	            result = result * self.term()
-	        if op.value == '/':
+	        if token.value == '/':
 	            self.eat(DIVIDE)
 	            result = result / self.term()
 
