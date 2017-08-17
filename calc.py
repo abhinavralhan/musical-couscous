@@ -98,35 +98,50 @@ class Interpreter(object):
         else:
             self.error()
 
+	def term(self):
+        token = self.current_token
+        self.eat(INTEGER)
+        return token.value
+
+
     def expr(self):
         self.current_token = self.get_next_token()
 
-        left = self.current_token
-        self.eat(INTEGER)
 
-        op = self.current_token
+        result = self.term()
 
-        # print(op)
-        if op.value == '+':
-            self.eat(PLUS)
-        if op.value == '-':
-            self.eat(MINUS)
-        if op.value == '*':
-            self.eat(MULTIPLY)
-        if op.value == '/':
-            self.eat(DIVIDE)
+        while self.current_token.type in (PLUS, MINUS, MULTIPLY, DIVIDE):
 
-        right = self.current_token
-        self.eat(INTEGER)
+	        token = self.current_token
+    	    self.eat(INTEGER)
 
-        if op.value == '+':
-            result = left.value + right.value
-        if op.value == '-':
-            result = left.value - right.value
-        if op.value == '*':
-            result = left.value * right.value
-        if op.value == '/':
-            result = left.value / right.value
+        	op = self.current_token
+
+	        # print(op)
+	        if op.value == '+':
+	            self.eat(PLUS)
+	            result = result + self.term
+	        if op.value == '-':
+	            self.eat(MINUS)
+	            result = result + self.term
+	        if op.value == '*':
+	            self.eat(MULTIPLY)
+	            result = result + self.term
+	        if op.value == '/':
+	            self.eat(DIVIDE)
+	            result = result + self.term
+
+	        # right = self.current_token
+	        # self.eat(INTEGER)
+
+	        # if op.value == '+':
+	        #     result = left.value + right.value
+	        # if op.value == '-':
+	        #     result = left.value - right.value
+	        # if op.value == '*':
+	        #     result = left.value * right.value
+	        # if op.value == '/':
+	        #     result = left.value / right.value
 
         return result
 
