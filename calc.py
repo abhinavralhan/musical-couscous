@@ -59,7 +59,6 @@ class Interpreter(object):
         if self.pos > len(text) - 1:
             return Token(EOF, None)
 
-        
         while self.current_char is not None:
 
             if self.current_char.isspace():
