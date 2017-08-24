@@ -17,7 +17,7 @@ class Token(object):
         return self.__str__()
 
 
-class Interpreter(object):
+class Lexer(object):
     def __init__(self, text):
         self.text = text
         self.pos = 0
@@ -82,6 +82,15 @@ class Interpreter(object):
             self.error()
         return Token(EOF, None)
 
+class Interpreter(object):
+    def __init__(self, lexer):
+        self.lexer = lexer
+        # set current token to the first token taken from the input
+        self.current_token = self.lexer.get_next_token()
+
+    def error(self):
+        raise Exception('Invalid syntax')
+
     def eat(self, token_type):
         if self.current_token.type == token_type:
             self.current_token = self.get_next_token()
@@ -93,10 +102,11 @@ class Interpreter(object):
         self.eat(INTEGER)
         return token.value
 
-
+#	def factor(self):
+#    	self.eat(INTEGER)
 
     def expr(self):
-        self.current_token = self.get_next_token()
+#        self.current_token = self.get_next_token()
         result = self.term()
 
         while self.current_token.type in (PLUS, MINUS, MULTIPLY, DIVIDE):
@@ -139,6 +149,7 @@ def main():
             break
         if not text:
             continue
+        lexer = Lexer(text)
         interpreter = Interpreter(text)
         result = interpreter.expr()
         print(result)
