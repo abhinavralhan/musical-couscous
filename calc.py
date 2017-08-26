@@ -93,52 +93,39 @@ class Interpreter(object):
 
     def eat(self, token_type):
         if self.current_token.type == token_type:
-            self.current_token = self.get_next_token()
+            self.current_token = self.lexer.get_next_token()
         else:
             self.error()
 
-    def term(self):
-        token = self.current_token
-        self.eat(INTEGER)
-        return token.value
+    def factor(self):
+    	token = self.current_token
+    	self.eat(INTEGER)
+    	return token.value
 
-#	def factor(self):
-#    	self.eat(INTEGER)
+    def term(self):
+    	result = self.factor()
+    	while self.current_token.type in (MULTIPLY,DIVIDE):
+    		token = self.current_token
+    		if token.type == MULTIPLY:
+    			self.eat(MULTIPLY)
+    			result = result * self.factor()
+    		elif token.type == DIVIDE:
+    			self.eat(DIVIDE)
+    			result = result / self.factor()
+    	return result
+	
 
     def expr(self):
-#        self.current_token = self.get_next_token()
-        result = self.term()
-
-        while self.current_token.type in (PLUS, MINUS, MULTIPLY, DIVIDE):
-	        token = self.current_token
-    	    # self.eat(INTEGER)
-        	# op = self.current_token
-	        # print(op)
-	        if token.value == '+':
-	            self.eat(PLUS)
-	            result = result + self.term()
-	        if token.value == '-':
-	            self.eat(MINUS)
-	            result = result - self.term()
-	        if token.value == '*':
-	            self.eat(MULTIPLY)
-	            result = result * self.term()
-	        if token.value == '/':
-	            self.eat(DIVIDE)
-	            result = result / self.term()
-
-	        # right = self.current_token
-	        # self.eat(INTEGER)
-
-	        # if op.value == '+':
-	        #     result = left.value + right.value
-	        # if op.value == '-':
-	        #     result = left.value - right.value
-	        # if op.value == '*':
-	        #     result = left.value * right.value
-	        # if op.value == '/':
-	        #     result = left.value / right.value
-        return result
+	    result = self.term()
+	    while self.current_token.type in (PLUS, MINUS):
+	    	token = self.current_token
+	    	if token.type == PLUS:
+	    		self.eat(PLUS)
+	    		result = result + self.term()
+	    	elif token.type == MINUS:
+	    		self.eat(MINUS)
+	    		result = result - self.term()
+	    return result
 
 
 def main():
@@ -150,7 +137,7 @@ def main():
         if not text:
             continue
         lexer = Lexer(text)
-        interpreter = Interpreter(text)
+        interpreter = Interpreter(lexer)
         result = interpreter.expr()
         print(result)
 
