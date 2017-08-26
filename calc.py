@@ -52,6 +52,8 @@ class Lexer(object):
         if self.pos > len(text) - 1:
             return Token(EOF, None)
 
+        count = 0
+
         while self.current_char is not None:
             if self.current_char.isspace():
                 self.skip_whitespace()
@@ -59,6 +61,11 @@ class Lexer(object):
 
             if self.current_char.isdigit():
                 return Token(INTEGER, self.integer())
+
+            if self.current_char == '(':
+            	count = count + 1
+            	self.advance()
+            	return Token(Parantheses, '(')
 
             if self.current_char == '+':
                 self.advance()
