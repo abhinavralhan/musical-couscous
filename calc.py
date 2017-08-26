@@ -1,4 +1,4 @@
-INTEGER, PLUS, MINUS, MULTIPLY, DIVIDE, POW, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'POW', 'EOF'
+INTEGER, PLUS, MINUS, MULTIPLY, DIVIDE, LPAREN, RPAREN, POW, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', '(', ')', 'POW', 'EOF'
 
 
 class Token(object):
@@ -65,7 +65,12 @@ class Lexer(object):
             if self.current_char == '(':
             	count = count + 1
             	self.advance()
-            	return Token(Parantheses, '(')
+            	return Token(LPAREN, '(')
+
+            if self.current_char == ')':
+                count = count - 1
+                self.advance()
+                return Token(RPAREN, ')')
 
             if self.current_char == '+':
                 self.advance()
@@ -105,9 +110,15 @@ class Interpreter(object):
             self.error()
 
     def factor(self):
-    	token = self.current_token
-    	self.eat(INTEGER)
-    	return token.value
+        token = self.current_token
+        if token.type == INTEGER:
+            self.eat(INTEGER)
+            return token.value
+        elif token.type == LPAREN:
+            self.eat(LPAREN)
+            result = self.expr()
+            self.eat(RPAREN)
+            return result
 
     def term(self):
     	result = self.factor()
@@ -136,18 +147,21 @@ class Interpreter(object):
 
 
 def main():
-    while True:
-        try:
-            text = input('calc> ')
-        except EOFError:
-            break
-        if not text:
-            continue
-        lexer = Lexer(text)
-        interpreter = Interpreter(lexer)
-        result = interpreter.expr()
-        print(result)
-
+	print('\nSimple Calculator\n(type exit to leave)\n')
+	while True:
+		try:
+			text = input('calculate > ')
+		except EOFError:
+			break
+		if text == "exit":
+			print('bye bye')
+			return
+		if not text:
+			continue
+		lexer = Lexer(text)
+		interpreter = Interpreter(lexer)
+		result = interpreter.expr()
+		print(result)
 
 if __name__ == '__main__':
-    main()
+	main()
